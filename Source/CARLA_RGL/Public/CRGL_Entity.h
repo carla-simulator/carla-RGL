@@ -5,6 +5,8 @@
 
 
 
+class FCRGL_Scene;
+class FCRGL_Mesh;
 class ACRGL_Texture;
 class ACRGL_Mesh;
 class ACRGL_Scene;
@@ -15,7 +17,14 @@ class FCRGL_Entity :
 	public FCarlaRGLHandleMixin<rgl_entity_t>
 {
 public:
-	void Initialize(const ACRGL_Scene& Scene, const ACRGL_Mesh& Mesh);
+
+	static FCRGL_Entity Create(
+		const FCRGL_Mesh& Mesh);
+
+	static FCRGL_Entity Create(
+		const FCRGL_Scene& Scene,
+		const FCRGL_Mesh& Mesh);
+
 	void SetPose(const FTransform& Transform);
 	void SetID(int32_t ID);
 	void SetIntensityTexture(const ACRGL_Texture& Texture);

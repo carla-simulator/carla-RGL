@@ -9,6 +9,17 @@ class ACRGL_Mesh;
 
 
 
+class FCRGL_Scene :
+	public FCarlaRGLHandleMixin<rgl_scene_t>
+{
+public:
+
+	void SetTime(uint64_t nanoseconds);
+
+};
+
+
+
 UCLASS()
 class ACRGL_Scene :
   public AActor
@@ -17,12 +28,4 @@ class ACRGL_Scene :
 public:
 
 	ACRGL_Scene(const FObjectInitializer& Initializer);
-
-	void Initialize(const ACRGL_Mesh& Mesh);
-	void SetTime(uint64_t nanoseconds);
-
-	constexpr auto GetHandle()const { return scene; }
-
-private:
-	rgl_scene_t scene;
 };

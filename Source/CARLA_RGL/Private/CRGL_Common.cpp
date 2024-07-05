@@ -59,7 +59,7 @@ void CheckRGLResult(int32_t status)
 
 
 
-rgl_mat3x4f MakeRGLTransform(
+rgl_mat3x4f ToRGLTransform(
 	const FTransform& Transform)
 {
 	rgl_mat3x4f r = { };

@@ -3,16 +3,26 @@
 #include "CRGL_Scene.h"
 #include "CRGL_Mesh.h"
 
-ACRGL_Entity::ACRGL_Entity(const FObjectInitializer& Initializer)
+FCRGL_Entity FCRGL_Entity::Create(const FCRGL_Mesh& Mesh)
 {
+	FCRGL_Entity r = { };
+	CheckRGLResult(rgl_entity_create(
+		r.GetHandlePtr(),
+		nullptr,
+		Mesh.GetHandle()));
+	return r;
 }
 
-void FCRGL_Entity::Initialize(const ACRGL_Scene& Scene, const ACRGL_Mesh& Mesh)
+FCRGL_Entity FCRGL_Entity::Create(
+	const FCRGL_Scene& Scene,
+	const FCRGL_Mesh& Mesh)
 {
+	FCRGL_Entity r = { };
 	CheckRGLResult(rgl_entity_create(
-		&GetHandleRef(),
+		r.GetHandlePtr(),
 		Scene.GetHandle(),
 		Mesh.GetHandle()));
+	return r;
 }
 
 void FCRGL_Entity::SetPose(const FTransform& Transform)
@@ -28,7 +38,9 @@ void FCRGL_Entity::SetID(int32_t ID)
 
 void FCRGL_Entity::SetIntensityTexture(const ACRGL_Texture& Texture)
 {
-	CheckRGLResult(rgl_entity_set_intensity_texture(GetHandle(), Texture.GetHandle()));
+	CheckRGLResult(rgl_entity_set_intensity_texture(
+		GetHandle(),
+		Texture.GetHandle()));
 }
 
 void FCRGL_Entity::SetLaserRetro(float Retro)
@@ -41,4 +53,11 @@ bool FCRGL_Entity::IsAlive()
 	bool r = false;
 	CheckRGLResult(rgl_entity_is_alive(GetHandle(), &r));
 	return r;
+}
+
+
+
+ACRGL_Entity::ACRGL_Entity(const FObjectInitializer& Initializer) :
+	Super(Initializer)
+{
 }

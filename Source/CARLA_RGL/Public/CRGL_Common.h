@@ -9,8 +9,12 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCarlaRGL, Log, Log);
 
 void CheckRGLResult(int32_t status);
 
-rgl_mat3x4f MakeRGLTransform(
+
+
+rgl_mat3x4f ToRGLTransform(
   const FTransform& Transform);
+
+
 
 template <typename T>
 class FCarlaRGLHandleMixin
@@ -30,14 +34,14 @@ public:
 
 protected:
 
-	constexpr auto& GetHandleRef()
+	constexpr auto GetHandlePtr()
 	{
-		return handle;
+		return &handle;
 	}
 
-	constexpr auto& GetHandleRef() const
+	constexpr auto GetHandlePtr() const
 	{
-		return handle;
+		return &handle;
 	}
 
 	constexpr void SetHandle(T new_handle)

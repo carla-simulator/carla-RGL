@@ -5,6 +5,50 @@
 
 
 
+class FCRGL_Node;
+
+
+
+class FCRGL_Graph
+{
+public:
+	static void Run(
+		FCRGL_Node& node);
+
+	static void Destroy(
+		FCRGL_Node& node);
+
+	static std::pair<int32_t, int32_t> GetResultSize(
+		FCRGL_Node& node,
+		rgl_field_t field);
+
+	static void GetResultData(
+		FCRGL_Node& node,
+		rgl_field_t field,
+		void* data);
+
+	static std::vector<uint8_t> GetResult(
+		FCRGL_Node& node,
+		rgl_field_t field);
+
+	static void AddChild(
+		FCRGL_Node& parent,
+		FCRGL_Node& child);
+
+	static void RemoveChild(
+		FCRGL_Node& parent,
+		FCRGL_Node& child);
+
+	static void SetPriority(
+		FCRGL_Node& node,
+		int32_t priority);
+
+	static int32_t GetPriority(
+		FCRGL_Node& node);
+};
+
+
+
 UCLASS()
 class ACRGL_Graph :
   public AActor
