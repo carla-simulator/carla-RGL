@@ -27,9 +27,17 @@ public:
 		rgl_field_t field,
 		void* data);
 
-	static std::vector<uint8_t> GetResult(
+	template <typename T>
+	static std::vector<T> GetResult(
 		FCRGL_Node& node,
-		rgl_field_t field);
+		rgl_field_t field)
+	{
+		std::vector<T> r;
+		auto [size, size_of] = GetResultSize(node, field);
+		r.resize(size * size_of / sizeof(T));
+		GetResultData(node, field, r.data());
+		return r;
+	}
 
 	static void AddChild(
 		FCRGL_Node& parent,

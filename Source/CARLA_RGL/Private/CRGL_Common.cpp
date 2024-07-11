@@ -49,11 +49,17 @@ void CheckRGLResult(int32_t status)
 		error = TEXT("");
 		break;
 	}
+
+	const char* error_string = "";
+	rgl_get_last_error_string(&error_string);
+	FString error_string_temp = error_string;
+
 	UE_LOG(
 		LogCarlaRGL,
 		Log,
-		TEXT("Encountered Robotec GPU Lidar error: \"%s\""),
-		error);
+		TEXT("Encountered Robotec GPU Lidar error \"%s\": %s"),
+		error,
+		*error_string_temp);
 	check(false);
 }
 
@@ -62,10 +68,45 @@ void CheckRGLResult(int32_t status)
 rgl_mat3x4f ToRGLTransform(
 	const FTransform& Transform)
 {
-	rgl_mat3x4f r = { };
-	const auto m = Transform.ToMatrixWithScale();
-	for (int i = 0; i != 3; ++i)
-		for (int j = 0; j != 4; ++j)
-			r.value[i][j] = (float)m.M[i][j];
-	return r;
+	const auto mat = Transform.ToMatrixWithScale();
+	const auto& m = mat.M;
+	return
+	{{
+		(float)m[0][0], (float)m[0][1], (float)m[0][2], (float)m[0][3],
+		(float)m[1][0], (float)m[1][1], (float)m[1][2], (float)m[1][3],
+		(float)m[2][0], (float)m[2][1], (float)m[2][2], (float)m[2][3]
+	}};
+}
+
+rgl_vec3f ToRGLVector(const FVector3f& Vector)
+{
+	auto [x, y, z] = Vector.XYZ;
+	return { { x, y, z} };
+}
+
+rgl_vec3i ToRGLVector(const FIntVector3& Vector)
+{
+	auto [x, y, z] = Vector.XYZ;
+	return { { x, y, z} };
+}
+
+FTransform ToUETransform(const rgl_mat3x4f& Transform)
+{
+	auto M = FMatrix::Identity;
+	for (size_t i = 0; i != 3; ++i)
+		for (size_t j = 0; j != 4; ++j)
+			M.M[i][j] = Transform.value[i][j];
+	return FTransform(M);
+}
+
+FVector3f ToUEVector(const rgl_vec3f& Vector)
+{
+	auto [x, y, z] = Vector.value;
+	return FVector3f(x, y, z);
+}
+
+FIntVector3 ToUEVector(const rgl_vec3i& Vector)
+{
+	auto [x, y, z] = Vector.value;
+	return FIntVector3(x, y, z);
 }

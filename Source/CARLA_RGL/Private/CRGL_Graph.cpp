@@ -35,17 +35,6 @@ void FCRGL_Graph::GetResultData(
 		data));
 }
 
-std::vector<uint8_t> FCRGL_Graph::GetResult(
-	FCRGL_Node& node,
-	rgl_field_t field)
-{
-	std::vector<uint8_t> r;
-	auto [size, size_of] = GetResultSize(node, field);
-	r.resize(size * size_of);
-	GetResultData(node, field, r.data());
-	return r;
-}
-
 void FCRGL_Graph::AddChild(
 	FCRGL_Node& parent,
 	FCRGL_Node& child)

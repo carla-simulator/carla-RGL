@@ -28,4 +28,5 @@ class ACRGL_Scene :
 public:
 
 	ACRGL_Scene(const FObjectInitializer& Initializer);
+
 };

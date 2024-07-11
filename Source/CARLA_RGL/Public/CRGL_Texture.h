@@ -14,7 +14,10 @@ public:
 
 	ACRGL_Texture(const FObjectInitializer& Initializer);
 
-	void Initialize(const void* Data, int32_t Width, int32_t Height);
+	void Initialize(
+		const void* Data,
+		int32_t Width,
+		int32_t Height);
 
 	constexpr auto GetHandle() const { return texture; }
 

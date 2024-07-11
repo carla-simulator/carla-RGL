@@ -3,6 +3,12 @@
 #include "CRGL_Scene.h"
 #include "CRGL_Mesh.h"
 
+FCRGL_Entity::~FCRGL_Entity()
+{
+	if (IsAlive())
+		Destroy();
+}
+
 FCRGL_Entity FCRGL_Entity::Create(const FCRGL_Mesh& Mesh)
 {
 	FCRGL_Entity r = { };
@@ -51,8 +57,16 @@ void FCRGL_Entity::SetLaserRetro(float Retro)
 bool FCRGL_Entity::IsAlive()
 {
 	bool r = false;
+	if (GetHandle() == nullptr)
+		return false;
 	CheckRGLResult(rgl_entity_is_alive(GetHandle(), &r));
 	return r;
+}
+
+void FCRGL_Entity::Destroy()
+{
+	CheckRGLResult(rgl_entity_destroy(GetHandle()));
+	*GetHandlePtr() = nullptr;
 }
 
 

@@ -1,18 +1,48 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CARLA_RGL.h"
+#include "CRGL_Common.h"
 
 #define LOCTEXT_NAMESPACE "FCARLA_RGLModule"
 
+static TAutoConsoleVariable<FString> GRGLLogPath(
+	TEXT("crgl.LogPath"),
+	TEXT(""),
+	TEXT("Specify output log path for RGL."));
+
+static TAutoConsoleVariable<int32> GRGLLogLevel(
+	TEXT("crgl.LogLevel"),
+	RGL_LOG_LEVEL_TRACE,
+	TEXT("Set the RGL log level:\n")
+	TEXT("0 = RGL_LOG_LEVEL_ALL = RGL_LOG_LEVEL_TRACE\n")
+	TEXT("1 = RGL_LOG_LEVEL_DEBUG\n")
+	TEXT("2 = RGL_LOG_LEVEL_INFO\n")
+	TEXT("3 = RGL_LOG_LEVEL_WARN\n")
+	TEXT("4 = RGL_LOG_LEVEL_ERROR\n")
+	TEXT("5 = RGL_LOG_LEVEL_CRITICAL\n")
+	TEXT("6 = RGL_LOG_LEVEL_OFF\n"));
+
 void FCARLA_RGLModule::StartupModule()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+	int32_t major, minor, patch;
+	CheckRGLResult(rgl_get_version_info(&major, &minor, &patch));
+	UE_LOG(LogCarlaRGL, Log, TEXT("Using RGL v%i.%i.%i"), major, minor, patch);
+
+	const auto Path = GRGLLogPath.GetValueOnAnyThread();
+	const auto Level = (rgl_log_level_t)GRGLLogLevel.GetValueOnAnyThread();
+	check(Level >= 0 && Level < RGL_LOG_LEVEL_COUNT);
+	if (Path.Len() != 0 || Level != RGL_LOG_LEVEL_INFO)
+	{
+		rgl_configure_logging(
+			Level,
+			Path.Len() != 0 ? TCHAR_TO_UTF8(*Path) : nullptr,
+			true);
+	}
 }
 
 void FCARLA_RGLModule::ShutdownModule()
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
+	rgl_cleanup();
 }
 
 #undef LOCTEXT_NAMESPACE

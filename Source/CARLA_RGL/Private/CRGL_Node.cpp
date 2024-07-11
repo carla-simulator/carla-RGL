@@ -1,6 +1,17 @@
 #include "CRGL_Node.h"
 #include "CRGL_Scene.h"
 
+
+
+bool FCRGL_Node::IsAlive() const
+{
+	bool result;
+	if (GetHandle() == nullptr)
+		return false;
+	CheckRGLResult(rgl_node_is_alive(GetHandle(), &result));
+	return result;
+}
+
 FCRGL_Node FCRGL_Node::CreateRayTransforms(const rgl_mat3x4f& transform)
 {
 	FCRGL_Node r = { };
@@ -218,7 +229,7 @@ void FCRGL_Node::SetRayRingIDs(
 	CheckRGLResult(rgl_node_rays_set_ring_ids(GetHandlePtr(), ids, count));
 }
 
-void FCRGL_Node::SetRayFromMat3x4F(
+void FCRGL_Node::SetRaysFromMat3x4F(
 	const rgl_mat3x4f* transforms,
 	size_t count)
 {
@@ -257,6 +268,11 @@ void FCRGL_Node::SetPointsYield(
 	size_t count)
 {
 	CheckRGLResult(rgl_node_points_yield(GetHandlePtr(), fields, count));
+}
+
+void FCRGL_Node::SetPointsCompact()
+{
+	CheckRGLResult(rgl_node_points_compact(GetHandlePtr()));
 }
 
 void FCRGL_Node::SetPointsCompactByField(
@@ -356,6 +372,36 @@ void FCRGL_Node::SetGaussianNoiseDistance(
 		mean,
 		std_dev,
 		std_dev_rise_per_meter));
+}
+
+void FCRGL_Node::SetRayTrace(FCRGL_Scene& scene)
+{
+	CheckRGLResult(rgl_node_raytrace(
+		GetHandlePtr(),
+		scene.GetHandle()));
+}
+
+void FCRGL_Node::SetRayTrace()
+{
+	CheckRGLResult(rgl_node_raytrace(
+		GetHandlePtr(),
+		nullptr));
+}
+
+void FCRGL_Node::AddChild(const FCRGL_Node& child)
+{
+	CheckRGLResult(
+		rgl_graph_node_add_child(
+			GetHandle(),
+			child.GetHandle()));
+}
+
+void FCRGL_Node::RemoveChild(const FCRGL_Node& child)
+{
+	CheckRGLResult(
+		rgl_graph_node_remove_child(
+			GetHandle(),
+			child.GetHandle()));
 }
 
 

@@ -18,6 +18,11 @@ class FCRGL_Entity :
 {
 public:
 
+	FCRGL_Entity() = default;
+	FCRGL_Entity(FCRGL_Entity&&) = default;
+	FCRGL_Entity& operator=(FCRGL_Entity&&) = default;
+	~FCRGL_Entity();
+
 	static FCRGL_Entity Create(
 		const FCRGL_Mesh& Mesh);
 
@@ -30,6 +35,7 @@ public:
 	void SetIntensityTexture(const ACRGL_Texture& Texture);
 	void SetLaserRetro(float Retro);
 	bool IsAlive();
+	void Destroy();
 };
 
 

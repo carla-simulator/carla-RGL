@@ -77,7 +77,8 @@ public class CARLA_RGL : ModuleRules
       "CoreUObject",
       "Engine",
       "Slate",
-      "SlateCore"
+      "SlateCore",
+      "RenderCore"
     });
 
   }
