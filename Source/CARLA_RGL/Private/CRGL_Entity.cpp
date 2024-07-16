@@ -3,75 +3,72 @@
 #include "CRGL_Scene.h"
 #include "CRGL_Mesh.h"
 
-FCRGL_Entity::~FCRGL_Entity()
+
+
+namespace RGL
 {
-	if (IsAlive())
-		Destroy();
-}
+	FEntity FEntity::Create(const FMesh& Mesh)
+	{
+		FEntity r = { };
+		CheckRGLResult(rgl_entity_create(
+			r.GetHandlePtr(),
+			nullptr,
+			Mesh.GetHandle()));
+		return r;
+	}
 
-FCRGL_Entity FCRGL_Entity::Create(const FCRGL_Mesh& Mesh)
-{
-	FCRGL_Entity r = { };
-	CheckRGLResult(rgl_entity_create(
-		r.GetHandlePtr(),
-		nullptr,
-		Mesh.GetHandle()));
-	return r;
-}
+	FEntity FEntity::Create(
+		const FScene& Scene,
+		const FMesh& Mesh)
+	{
+		FEntity r = { };
+		CheckRGLResult(rgl_entity_create(
+			r.GetHandlePtr(),
+			Scene.GetHandle(),
+			Mesh.GetHandle()));
+		return r;
+	}
 
-FCRGL_Entity FCRGL_Entity::Create(
-	const FCRGL_Scene& Scene,
-	const FCRGL_Mesh& Mesh)
-{
-	FCRGL_Entity r = { };
-	CheckRGLResult(rgl_entity_create(
-		r.GetHandlePtr(),
-		Scene.GetHandle(),
-		Mesh.GetHandle()));
-	return r;
-}
+	void FEntity::SetPose(const rgl_mat3x4f& Transform)
+	{
+		CheckRGLResult(rgl_entity_set_pose(
+			GetHandle(),
+			&Transform));
+	}
 
-void FCRGL_Entity::SetPose(const FTransform& Transform)
-{
-	rgl_mat3x4f transform;
-	CheckRGLResult(rgl_entity_set_pose(GetHandle(), &transform));
-}
+	void FEntity::SetPose(const FTransform& Transform)
+	{
+		auto M3x4 = ToRGLTransform(Transform);
+		SetPose(M3x4);
+	}
 
-void FCRGL_Entity::SetID(int32_t ID)
-{
-	CheckRGLResult(rgl_entity_set_id(GetHandle(), ID));
-}
+	void FEntity::SetID(int32_t ID)
+	{
+		CheckRGLResult(rgl_entity_set_id(GetHandle(), ID));
+	}
 
-void FCRGL_Entity::SetIntensityTexture(const ACRGL_Texture& Texture)
-{
-	CheckRGLResult(rgl_entity_set_intensity_texture(
-		GetHandle(),
-		Texture.GetHandle()));
-}
+	void FEntity::SetIntensityTexture(const FTexture& FTexture)
+	{
+#if 0
+		CheckRGLResult(rgl_entity_set_intensity_texture(
+			GetHandle(),
+			FTexture.GetHandle()));
+#else
+		check(false);
+#endif
+	}
 
-void FCRGL_Entity::SetLaserRetro(float Retro)
-{
-	CheckRGLResult(rgl_entity_set_laser_retro(GetHandle(), Retro));
-}
+	void FEntity::SetLaserRetro(float Retro)
+	{
+		CheckRGLResult(rgl_entity_set_laser_retro(GetHandle(), Retro));
+	}
 
-bool FCRGL_Entity::IsAlive()
-{
-	bool r = false;
-	if (GetHandle() == nullptr)
-		return false;
-	CheckRGLResult(rgl_entity_is_alive(GetHandle(), &r));
-	return r;
-}
-
-void FCRGL_Entity::Destroy()
-{
-	CheckRGLResult(rgl_entity_destroy(GetHandle()));
-	*GetHandlePtr() = nullptr;
-}
-
-
-
-ACRGL_Entity::ACRGL_Entity(const FObjectInitializer& Initializer) :
-	Super(Initializer)
-{
+	bool FEntity::IsAlive()
+	{
+		bool r = false;
+		if (GetHandle() == nullptr)
+			return false;
+		CheckRGLResult(rgl_entity_is_alive(GetHandle(), &r));
+		return r;
+	}
 }

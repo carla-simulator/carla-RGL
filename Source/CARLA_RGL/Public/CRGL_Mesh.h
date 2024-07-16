@@ -5,46 +5,48 @@
 
 
 
+class UStaticMesh;
 class AStaticMeshActor;
 
 
-
-class FCRGL_Mesh :
-	public FCarlaRGLHandleMixin<rgl_mesh_t>
+namespace RGL
 {
-public:
+	class CARLA_RGL_API FMesh :
+		public FRGLHandleMixin<rgl_mesh_t, rgl_mesh_destroy>
+	{
+	public:
 
-	FCRGL_Mesh() = default;
-	FCRGL_Mesh(FCRGL_Mesh&&) = default;
-	FCRGL_Mesh& operator=(FCRGL_Mesh&&) = default;
-	~FCRGL_Mesh();
+		FMesh() = default;
+		FMesh(FMesh&&) = default;
+		FMesh& operator=(FMesh&&) = default;
+		~FMesh() = default;
 
-	static FCRGL_Mesh CreateCube();
+		static FMesh CreateCube();
 
-	static FCRGL_Mesh CreateCube(
-		FTransform Transform);
+		static FMesh CreateCube(
+			FTransform Transform);
 
-	static FCRGL_Mesh FromUEMesh(
-		UStaticMesh* mesh,
-		uint32 lod_index = 0);
+		// Load mesh data from a UStaticMesh
+		static FMesh FromUEMesh(
+			UStaticMesh* mesh,
+			uint32 lod_index = 0);
 
-	static FCRGL_Mesh FromStaticMeshActor(
-		AStaticMeshActor* mesh,
-		uint32 lod_index = 0);
+		// Load mesh data from an AStaticMeshActor.
+		static FMesh FromStaticMeshActor(
+			AStaticMeshActor* mesh,
+			uint32 lod_index = 0);
 
-	static FCRGL_Mesh Create(
-		std::span<const rgl_vec3f> vertices,
-		std::span<const rgl_vec3i> indices);
+		static FMesh Create(
+			std::span<const rgl_vec3f> vertices,
+			std::span<const rgl_vec3i> indices);
 
-	static FCRGL_Mesh Create(
-		const rgl_vec3f* vertices, int32_t vertex_count,
-		const rgl_vec3i* indices, int32_t index_count);
+		static FMesh Create(
+			const rgl_vec3f* vertices, int32_t vertex_count,
+			const rgl_vec3i* indices, int32_t index_count);
 
-	static TArray<std::pair<FCRGL_Mesh, FTransform>> EnumerateStaticMeshes(UWorld* World);
-	
-	void SetTextureUVs(const rgl_vec2f* uvs, int32_t count);
-	void UpdateVertices(const rgl_vec3f* vertices, int32_t count);
-	bool IsAlive();
-	void Destroy();
+		void SetTextureUVs(const rgl_vec2f* uvs, int32_t count);
+		void UpdateVertices(const rgl_vec3f* vertices, int32_t count);
+		bool IsAlive();
 
-};
+	};
+}

@@ -5,6 +5,8 @@
 
 #define LOCTEXT_NAMESPACE "FCARLA_RGLModule"
 
+
+
 static TAutoConsoleVariable<FString> GRGLLogPath(
 	TEXT("crgl.LogPath"),
 	TEXT(""),
@@ -14,7 +16,7 @@ static TAutoConsoleVariable<int32> GRGLLogLevel(
 	TEXT("crgl.LogLevel"),
 	RGL_LOG_LEVEL_TRACE,
 	TEXT("Set the RGL log level:\n")
-	TEXT("0 = RGL_LOG_LEVEL_ALL = RGL_LOG_LEVEL_TRACE\n")
+	TEXT("0 = RGL_LOG_LEVEL_ALL\n")
 	TEXT("1 = RGL_LOG_LEVEL_DEBUG\n")
 	TEXT("2 = RGL_LOG_LEVEL_INFO\n")
 	TEXT("3 = RGL_LOG_LEVEL_WARN\n")
@@ -22,15 +24,19 @@ static TAutoConsoleVariable<int32> GRGLLogLevel(
 	TEXT("5 = RGL_LOG_LEVEL_CRITICAL\n")
 	TEXT("6 = RGL_LOG_LEVEL_OFF\n"));
 
+
+
 void FCARLA_RGLModule::StartupModule()
 {
-	int32_t major, minor, patch;
-	CheckRGLResult(rgl_get_version_info(&major, &minor, &patch));
-	UE_LOG(LogCarlaRGL, Log, TEXT("Using RGL v%i.%i.%i"), major, minor, patch);
-
 	const auto Path = GRGLLogPath.GetValueOnAnyThread();
 	const auto Level = (rgl_log_level_t)GRGLLogLevel.GetValueOnAnyThread();
+
 	check(Level >= 0 && Level < RGL_LOG_LEVEL_COUNT);
+
+	int32_t major, minor, patch;
+	RGL::CheckRGLResult(
+		rgl_get_version_info(&major, &minor, &patch));
+
 	if (Path.Len() != 0 || Level != RGL_LOG_LEVEL_INFO)
 	{
 		rgl_configure_logging(
@@ -38,12 +44,19 @@ void FCARLA_RGLModule::StartupModule()
 			Path.Len() != 0 ? TCHAR_TO_UTF8(*Path) : nullptr,
 			true);
 	}
+
+	UE_LOG(
+		LogCarlaRGL, Log,
+		TEXT("Using RGL v%i.%i.%i"),
+		major, minor, patch);
 }
 
 void FCARLA_RGLModule::ShutdownModule()
 {
 	rgl_cleanup();
 }
+
+
 
 #undef LOCTEXT_NAMESPACE
 	

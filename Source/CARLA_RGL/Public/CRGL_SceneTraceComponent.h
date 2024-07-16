@@ -2,36 +2,66 @@
 #include "CoreMinimal.h"
 #include "CRGL_Common.h"
 #include "CRGL_Entity.h"
-#include <span>
-#include <vector>
+#include "CRGL_Mesh.h"
+#include "CRGL_Node.h"
 #include "CRGL_SceneTraceComponent.generated.h"
 
 
 
-struct FRayCastResult
+USTRUCT(BlueprintType)
+struct CARLA_RGL_API FLIDARResult
 {
-	std::vector<int32_t> Hit;
-	std::vector<rgl_vec3f> HitPosition;
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<int32> Hit;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<float> HitDistances;
+
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FVector3f> HitPosition;
 };
 
 
 
-UCLASS()
-class ACRGL_SceneTraceComponent :
+UCLASS(BlueprintType)
+class CARLA_RGL_API ARGLLIDAR :
 	public AActor
 {
 	GENERATED_BODY()
 public:
 
-	ACRGL_SceneTraceComponent(
+	ARGLLIDAR(
 		const FObjectInitializer& Initializer);
 
 	void BeginPlay() override;
 	void EndPlay(EEndPlayReason::Type) override;
-	virtual void Tick(float DT) override;
 
-	FRayCastResult RayCast();
+	FLIDARResult RayCast();
+
+	UFUNCTION(BlueprintCallable)
+	void RayCast(FLIDARResult& OutResult);
+
+	UFUNCTION(BlueprintCallable)
+	void PrintRayCastResult(const FLIDARResult& InResult);
 
 private:
+
+	void EnumerateSceneEntities();
+	void SetupTaskGraph();
+
+	struct
+	{
+		RGL::FNode RayPoses;
+		RGL::FNode LIDARTransform;
+		RGL::FNode RayRanges;
+		RGL::FNode RayTrace;
+		RGL::FNode PointsYield;
+	} Nodes;
+
+	TArray<RGL::FMesh> Meshes;
+	TArray<RGL::FEntity> Entities;
+	FTransform LastLIDARTransform;
 
 };

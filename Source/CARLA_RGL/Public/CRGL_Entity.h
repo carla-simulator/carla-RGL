@@ -1,54 +1,38 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "CRGL_Common.h"
-#include "CRGL_Entity.generated.h"
 
 
 
-class FCRGL_Scene;
-class FCRGL_Mesh;
-class ACRGL_Texture;
-class ACRGL_Mesh;
-class ACRGL_Scene;
 
-
-
-class FCRGL_Entity :
-	public FCarlaRGLHandleMixin<rgl_entity_t>
+namespace RGL
 {
-public:
+	class FMesh;
+	class FTexture;
+	class FScene;
 
-	FCRGL_Entity() = default;
-	FCRGL_Entity(FCRGL_Entity&&) = default;
-	FCRGL_Entity& operator=(FCRGL_Entity&&) = default;
-	~FCRGL_Entity();
+	class CARLA_RGL_API FEntity :
+		public FRGLHandleMixin<rgl_entity_t, rgl_entity_destroy>
+	{
+	public:
 
-	static FCRGL_Entity Create(
-		const FCRGL_Mesh& Mesh);
+		FEntity() = default;
+		FEntity(FEntity&&) = default;
+		FEntity& operator=(FEntity&&) = default;
+		~FEntity() = default;
 
-	static FCRGL_Entity Create(
-		const FCRGL_Scene& Scene,
-		const FCRGL_Mesh& Mesh);
+		static FEntity Create(
+			const FMesh& Mesh);
 
-	void SetPose(const FTransform& Transform);
-	void SetID(int32_t ID);
-	void SetIntensityTexture(const ACRGL_Texture& Texture);
-	void SetLaserRetro(float Retro);
-	bool IsAlive();
-	void Destroy();
-};
+		static FEntity Create(
+			const FScene& Scene,
+			const FMesh& Mesh);
 
-
-
-UCLASS()
-class ACRGL_Entity :
-	public AActor,
-	public FCRGL_Entity
-{
-	GENERATED_BODY()
-
-public:
-
-	ACRGL_Entity(const FObjectInitializer& Initializer);
-
-};
+		void SetPose(const rgl_mat3x4f& Transform);
+		void SetPose(const FTransform& Transform);
+		void SetID(int32_t ID);
+		void SetIntensityTexture(const FTexture& FTexture);
+		void SetLaserRetro(float Retro);
+		bool IsAlive();
+	};
+}

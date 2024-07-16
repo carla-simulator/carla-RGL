@@ -1,81 +1,74 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "CRGL_Common.h"
-#include "CRGL_Graph.generated.h"
 
 
 
-class FCRGL_Node;
-
-
-
-class FCRGL_Graph
+namespace RGL
 {
-public:
-	static void Run(
-		FCRGL_Node& node);
+	class FNode;
 
-	static void Destroy(
-		FCRGL_Node& node);
-
-	static std::pair<int32_t, int32_t> GetResultSize(
-		FCRGL_Node& node,
-		rgl_field_t field);
-
-	static void GetResultData(
-		FCRGL_Node& node,
-		rgl_field_t field,
-		void* data);
-
-	template <typename T>
-	static std::vector<T> GetResult(
-		FCRGL_Node& node,
-		rgl_field_t field)
+	class CARLA_RGL_API FGraph
 	{
-		std::vector<T> r;
-		auto [size, size_of] = GetResultSize(node, field);
-		r.resize(size * size_of / sizeof(T));
-		GetResultData(node, field, r.data());
-		return r;
-	}
+	public:
+		static void Run(
+			FNode& node);
 
-	static void AddChild(
-		FCRGL_Node& parent,
-		FCRGL_Node& child);
+		static void Destroy(
+			FNode& node);
 
-	static void RemoveChild(
-		FCRGL_Node& parent,
-		FCRGL_Node& child);
+		static std::pair<int32_t, int32_t> GetResultSize(
+			FNode& node,
+			rgl_field_t field);
 
-	static void SetPriority(
-		FCRGL_Node& node,
-		int32_t priority);
+		static void GetResultData(
+			FNode& node,
+			rgl_field_t field,
+			void* data);
 
-	static int32_t GetPriority(
-		FCRGL_Node& node);
-};
+		template <
+			rgl_field_t Field,
+			template <typename> typename ArrayT = std::vector>
+		static auto GetResult(
+			FNode& node)
+		{
+			using T = FCRGLFieldToType<Field>;
+			ArrayT<T> r;
+			auto [size, size_of] = GetResultSize(node, Field);
+			check(size_of == sizeof(T));
+			r.resize(size);
+			GetResultData(node, Field, r.data());
+			return r;
+		}
 
+		template <
+			rgl_field_t Field,
+			template <typename> typename ArrayT = TArray>
+		static auto GetResultUE(
+			FNode& node)
+		{
+			using T = FCRGLFieldToType<Field>;
+			ArrayT<T> r;
+			auto [size, size_of] = GetResultSize(node, Field);
+			check(size_of == sizeof(T));
+			r.SetNum(size);
+			GetResultData(node, Field, r.GetData());
+			return r;
+		}
 
+		static void AddChild(
+			FNode& parent,
+			FNode& child);
 
-UCLASS()
-class ACRGL_Graph :
-  public AActor
-{
-	GENERATED_BODY()
-public:
+		static void RemoveChild(
+			FNode& parent,
+			FNode& child);
 
-	ACRGL_Graph(const FObjectInitializer& Initializer);
+		static void SetPriority(
+			FNode& node,
+			int32_t priority);
 
-	void Run();
-	void Destroy();
-	void GetResultSize();
-	void GetResultData();
-	void GetResult();
-	void AddChild();
-	void RemoveChild();
-	void SetPriority();
-	void GetPriority();
-
-private:
-
-};
+		static int32_t GetPriority(
+			FNode& node);
+	};
+}

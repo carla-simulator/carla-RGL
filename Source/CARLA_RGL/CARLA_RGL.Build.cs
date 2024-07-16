@@ -78,7 +78,8 @@ public class CARLA_RGL : ModuleRules
       "Engine",
       "Slate",
       "SlateCore",
-      "RenderCore"
+      "RenderCore",
+      "MeshConversion"
     });
 
   }
