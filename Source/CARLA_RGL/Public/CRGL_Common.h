@@ -26,6 +26,9 @@ namespace RGL
 		const FTransform& Transform);
 
 	rgl_vec3f ToRGLVector(
+		const FVector& Vector);
+
+	rgl_vec3f ToRGLVector(
 		const FVector3f& Vector);
 
 	rgl_vec3i ToRGLVector(

@@ -98,9 +98,9 @@ void ARGLLIDAR::EnumerateSceneEntities()
 		auto SMA = Cast<AStaticMeshActor>(Actor);
 		if (SMA == nullptr)
 			continue;
-		Meshes.Add(FMesh::FromStaticMeshActor(SMA, 0));
+		Meshes.Add(FMesh::FromStaticMeshActor(SMA));
 		Entities.Add(FEntity::Create(Meshes.Last()));
-		Entities.Last().SetPose(Actor->GetTransform().Inverse());
+		Entities.Last().SetPose(Actor->GetTransform());
 	}
 
 	UE_LOG(
