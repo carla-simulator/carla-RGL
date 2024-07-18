@@ -12,7 +12,6 @@ ARGLLIDAR::ARGLLIDAR(
   const FObjectInitializer& Initializer) :
 	Super(Initializer)
 {
-	LastLIDARTransform = FTransform::Identity;
 }
 
 void ARGLLIDAR::BeginPlay()
@@ -36,11 +35,7 @@ FLIDARResult ARGLLIDAR::RayCast()
 	using RGL::FGraph;
 
 	auto Transform = GetTransform();
-	if (!LastLIDARTransform.Equals(Transform))
-	{
-		Nodes.LIDARTransform.SetRayTransforms(Transform);
-		LastLIDARTransform = Transform;
-	}
+	Nodes.LIDARTransform.SetRayTransforms(Transform);
 
 	FGraph::Run(Nodes.PointsYield);
 	Result.Hit = FGraph::GetResultUE<RGL_FIELD_IS_HIT_I32, TArray>(
@@ -119,11 +114,8 @@ void ARGLLIDAR::SetupTaskGraph()
 	using RGL::ToRGLTransform;
 
 	auto Transform = GetTransform();
-	LastLIDARTransform = Transform;
-
 	constexpr rgl_vec2f Ranges[] = { 0.0F, 1000.0F };
-	const rgl_mat3x4f Identity[] = { ToRGLTransform(FTransform::Identity) };
-	const rgl_mat3x4f RayTransforms[] = { ToRGLTransform(Transform) };
+	const rgl_mat3x4f RayTransforms[] = { ToRGLTransform(FTransform::Identity) };
 
 	const auto loc = Transform.GetLocation();
 	const auto rot = Transform.GetRotation().Euler();
@@ -145,8 +137,8 @@ void ARGLLIDAR::SetupTaskGraph()
 		RGL_FIELD_XYZ_VEC3_F32
 	};
 
-	Nodes.RayPoses = FNode::CreateRaysFromMat3x4F(Identity);
-	Nodes.LIDARTransform = FNode::CreateRayTransforms(Identity[0]);
+	Nodes.RayPoses = FNode::CreateRaysFromMat3x4F(RayTransforms);
+	Nodes.LIDARTransform = FNode::CreateRayTransforms(Transform);
 	Nodes.RayRanges = FNode::CreateRayRange(Ranges);
 	Nodes.RayTrace = FNode::CreateRayTrace();
 	Nodes.PointsYield = FNode::CreatePointsYield(Fields);

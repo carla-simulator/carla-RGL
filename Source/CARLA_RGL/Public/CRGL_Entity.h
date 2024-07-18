@@ -12,7 +12,7 @@ namespace RGL
 	class FScene;
 
 	class CARLA_RGL_API FEntity :
-		public FRGLHandleMixin<rgl_entity_t, rgl_entity_destroy>
+		public FHandleMixin<rgl_entity_t, rgl_entity_destroy>
 	{
 	public:
 

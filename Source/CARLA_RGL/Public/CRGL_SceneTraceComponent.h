@@ -62,6 +62,5 @@ private:
 
 	TArray<RGL::FMesh> Meshes;
 	TArray<RGL::FEntity> Entities;
-	FTransform LastLIDARTransform;
 
 };

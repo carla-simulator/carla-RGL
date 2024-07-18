@@ -80,6 +80,11 @@ namespace RGL
 		} };
 	}
 
+	rgl_vec3f ToRGLVector(const FVector& Vector)
+	{
+		return ToRGLVector(FVector3f(Vector));
+	}
+
 	rgl_vec3f ToRGLVector(const FVector3f& Vector)
 	{
 		auto x = Vector.X;

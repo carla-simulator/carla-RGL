@@ -32,7 +32,7 @@ namespace RGL
 		static auto GetResult(
 			FNode& node)
 		{
-			using T = FCRGLFieldToType<Field>;
+			using T = FFieldToType<Field>;
 			ArrayT<T> r;
 			auto [size, size_of] = GetResultSize(node, Field);
 			check(size_of == sizeof(T));
@@ -47,7 +47,7 @@ namespace RGL
 		static auto GetResultUE(
 			FNode& node)
 		{
-			using T = FCRGLFieldToType<Field>;
+			using T = FFieldToType<Field>;
 			ArrayT<T> r;
 			auto [size, size_of] = GetResultSize(node, Field);
 			check(size_of == sizeof(T));

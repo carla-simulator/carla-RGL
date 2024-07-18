@@ -17,6 +17,36 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCarlaRGL, Log, Log);
 
 namespace RGL
 {
+	enum class EField : uint8
+	{
+		XYZVec3F32 = RGL_FIELD_XYZ_VEC3_F32,
+		IntensityF32 = RGL_FIELD_INTENSITY_F32,
+		IsHitI32 = RGL_FIELD_IS_HIT_I32,
+		IsGroundI32 = RGL_FIELD_IS_GROUND_I32,
+		RayIdxU32 = RGL_FIELD_RAY_IDX_U32,
+		EntityIdI32 = RGL_FIELD_ENTITY_ID_I32,
+		DistanceF32 = RGL_FIELD_DISTANCE_F32,
+		AzimuthF32 = RGL_FIELD_AZIMUTH_F32,
+		ElevationF32 = RGL_FIELD_ELEVATION_F32,
+		RingIdU16 = RGL_FIELD_RING_ID_U16,
+		ReturnTypeU8 = RGL_FIELD_RETURN_TYPE_U8,
+		TimeStampF64 = RGL_FIELD_TIME_STAMP_F64,
+		AbsoluteVelocityVec3F32 = RGL_FIELD_ABSOLUTE_VELOCITY_VEC3_F32,
+		RelativeVelocityVec3F32 = RGL_FIELD_RELATIVE_VELOCITY_VEC3_F32,
+		RadialSpeedF32 = RGL_FIELD_RADIAL_SPEED_F32,
+		PowerF32 = RGL_FIELD_POWER_F32,
+		RCSF32 = RGL_FIELD_RCS_F32,
+		NoiseF32 = RGL_FIELD_NOISE_F32,
+		SNRF32 = RGL_FIELD_SNR_F32,
+		NormalVec3F32 = RGL_FIELD_NORMAL_VEC3_F32,
+		IncidentAngleF32 = RGL_FIELD_INCIDENT_ANGLE_F32,
+		RayPoseMat3x4F32 = RGL_FIELD_RAY_POSE_MAT3x4_F32,
+		LaserRetroF32 = RGL_FIELD_LASER_RETRO_F32,
+		Padding8 = RGL_FIELD_PADDING_8 ,
+		Padding16 = RGL_FIELD_PADDING_16,
+		Padding32 = RGL_FIELD_PADDING_32,
+		DynamicFormat = RGL_FIELD_DYNAMIC_FORMAT ,
+	};
 
 	void CheckRGLResult(int32_t status);
 
@@ -46,7 +76,7 @@ namespace RGL
 
 
 	template <typename T, auto Dtor>
-	class CARLA_RGL_ENSURE_EBO FRGLHandleMixin
+	class CARLA_RGL_ENSURE_EBO FHandleMixin
 	{
 		T handle;
 	public:
@@ -61,28 +91,28 @@ namespace RGL
 			return handle;
 		}
 
-		constexpr FRGLHandleMixin() :
+		constexpr FHandleMixin() :
 			handle()
 		{
 		}
 
-		constexpr FRGLHandleMixin(FRGLHandleMixin&& other) noexcept :
+		constexpr FHandleMixin(FHandleMixin&& other) noexcept :
 			handle(other.handle)
 		{
 			other.handle = nullptr;
 		}
 
-		FRGLHandleMixin& operator=(FRGLHandleMixin&& other) noexcept
+		FHandleMixin& operator=(FHandleMixin&& other) noexcept
 		{
-			this->~FRGLHandleMixin();
-			new (this) FRGLHandleMixin(std::move(other));
+			this->~FHandleMixin();
+			new (this) FHandleMixin(std::move(other));
 			return *this;
 		}
 
-		FRGLHandleMixin(const FRGLHandleMixin&) = delete;
-		FRGLHandleMixin& operator=(const FRGLHandleMixin&) = delete;
+		FHandleMixin(const FHandleMixin&) = delete;
+		FHandleMixin& operator=(const FHandleMixin&) = delete;
 
-		~FRGLHandleMixin()
+		~FHandleMixin()
 		{
 			if constexpr (Dtor != nullptr)
 			{
@@ -275,6 +305,6 @@ namespace RGL
 	};
 
 	template <rgl_field_t Field>
-	using FCRGLFieldToType = typename FCRGLFieldToTypeHelper<Field>::Type;
+	using FFieldToType = typename FCRGLFieldToTypeHelper<Field>::Type;
 
 }
