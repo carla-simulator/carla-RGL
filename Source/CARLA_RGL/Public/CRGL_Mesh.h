@@ -12,7 +12,7 @@ class AStaticMeshActor;
 namespace RGL
 {
 	class CARLA_RGL_API FMesh :
-		public FRGLHandleMixin<rgl_mesh_t, rgl_mesh_destroy>
+		public FHandleMixin<rgl_mesh_t, rgl_mesh_destroy>
 	{
 	public:
 

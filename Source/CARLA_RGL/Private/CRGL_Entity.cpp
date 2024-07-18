@@ -38,8 +38,7 @@ namespace RGL
 
 	void FEntity::SetPose(const FTransform& Transform)
 	{
-		auto M3x4 = ToRGLTransform(Transform);
-		SetPose(M3x4);
+		SetPose(ToRGLTransform(Transform));
 	}
 
 	void FEntity::SetID(int32_t ID)

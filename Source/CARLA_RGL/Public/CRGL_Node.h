@@ -8,7 +8,7 @@
 namespace RGL
 {
 	class CARLA_RGL_API FNode :
-		public FRGLHandleMixin<rgl_node_t, nullptr>
+		public FHandleMixin<rgl_node_t, nullptr>
 	{
 	public:
 
