@@ -83,9 +83,9 @@ namespace RGL
 
 		return
 		{ {
-			(float)(1.0f / mat_scale.Z), 0, 0, (float)m[3][2],
-			0, (float)(1.0f / mat_scale.Y), 0, (float)m[3][1],
-			0, 0, (float)(1.0f / mat_scale.X), (float)-m[3][0],
+			(float)(mat_scale.Z), 0, 0, (float)m[3][2],
+			0, (float)(mat_scale.Y), 0, (float)m[3][1],
+			0, 0, (float)(mat_scale.X), (float)-m[3][0],
 		} };
 	}
 
