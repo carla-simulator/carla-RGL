@@ -76,6 +76,16 @@ void ARGLLIDAR::PrintRayCastResult(const FLIDARResult& Result)
 	}
 }
 
+void ARGLLIDAR::UpdatePoses() {
+
+	for (auto& mapElement : UpdateMap)
+	{
+		if (IsValid(mapElement.Key)) {
+			mapElement.Value->SetPose(mapElement.Key->GetTransform().Inverse());
+		}
+	}
+}
+
 void ARGLLIDAR::EnumerateSceneEntities()
 {
 	UE_LOG(LogCarlaRGL, Log, TEXT(__FUNCTION__));
@@ -101,6 +111,7 @@ void ARGLLIDAR::EnumerateSceneEntities()
 		Meshes.Add(FMesh::FromStaticMeshActor(SMA, 0));
 		Entities.Add(FEntity::Create(Meshes.Last()));
 		Entities.Last().SetPose(Actor->GetTransform().Inverse());
+		UpdateMap.Add(Actor, &Entities.Last());
 	}
 
 	UE_LOG(

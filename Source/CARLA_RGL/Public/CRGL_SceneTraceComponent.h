@@ -46,6 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PrintRayCastResult(const FLIDARResult& InResult);
 
+	UFUNCTION(BlueprintCallable)
+	void UpdatePoses();
+
 private:
 
 	void EnumerateSceneEntities();
@@ -62,6 +65,7 @@ private:
 
 	TArray<RGL::FMesh> Meshes;
 	TArray<RGL::FEntity> Entities;
+	TMap<AActor*, RGL::FEntity*> UpdateMap;
 	FTransform LastLIDARTransform;
 
 };

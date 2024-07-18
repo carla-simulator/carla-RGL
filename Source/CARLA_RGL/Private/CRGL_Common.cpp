@@ -1,5 +1,5 @@
 #include "CRGL_Common.h"
-
+#pragma optimize("", off)
 
 
 namespace RGL
@@ -72,11 +72,20 @@ namespace RGL
 	{
 		const auto mat = Transform.ToMatrixWithScale();
 		const auto& m = mat.M;
+		//return
+		//{ {
+		//	(float) m[0][0], (float) m[1][0], (float) m[2][0], (float) m[3][0],
+		//	(float)-m[0][2], (float)-m[1][2], (float)-m[2][2], (float)-m[3][2],
+		//	(float)-m[0][1], (float)-m[1][1], (float)-m[2][1], (float)-m[3][1]
+		//} };
+
+		FVector mat_scale = Transform.GetScale3D();
+
 		return
 		{ {
-			(float)m[0][0], (float)m[0][1], (float)m[0][2], (float)m[0][3],
-			(float)m[1][0], (float)m[1][1], (float)m[1][2], (float)m[1][3],
-			(float)m[2][0], (float)m[2][1], (float)m[2][2], (float)m[2][3]
+			(float)(1.0f / mat_scale.Z), 0, 0, (float)m[3][2],
+			0, (float)(1.0f / mat_scale.Y), 0, (float)m[3][1],
+			0, 0, (float)(1.0f / mat_scale.X), (float)-m[3][0],
 		} };
 	}
 
@@ -117,3 +126,5 @@ namespace RGL
 		return FIntVector3(x, y, z);
 	}
 }
+
+#pragma optimize("", on)
