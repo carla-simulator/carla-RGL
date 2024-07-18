@@ -17,7 +17,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCarlaRGL, Log, Log);
 
 namespace RGL
 {
-	enum class EField : uint8
+	enum class EField : uint32
 	{
 		XYZVec3F32 = RGL_FIELD_XYZ_VEC3_F32,
 		IntensityF32 = RGL_FIELD_INTENSITY_F32,
