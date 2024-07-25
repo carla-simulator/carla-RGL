@@ -37,6 +37,7 @@ public:
 
 	void BeginPlay() override;
 	void EndPlay(EEndPlayReason::Type) override;
+	void Tick(float dt) override;
 
 	FLIDARResult RayCast();
 
@@ -64,8 +65,8 @@ private:
 		RGL::FNode PointsYield;
 	} Nodes;
 
+	std::vector<rgl_mat3x4f> Pattern;
 	TArray<RGL::FMesh> Meshes;
 	TArray<RGL::FEntity> Entities;
-	TMap<AActor*, RGL::FEntity*> UpdateMap;
 
 };

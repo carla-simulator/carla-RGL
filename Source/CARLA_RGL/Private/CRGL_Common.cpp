@@ -70,39 +70,34 @@ namespace RGL
 	rgl_mat3x4f ToRGLTransform(
 		const FTransform& Transform)
 	{
+		rgl_mat3x4f r = { };
 		const auto mat = Transform.ToMatrixWithScale();
 		const auto& m = mat.M;
-		//return
-		//{ {
-		//	(float) m[0][0], (float) m[1][0], (float) m[2][0], (float) m[3][0],
-		//	(float)-m[0][2], (float)-m[1][2], (float)-m[2][2], (float)-m[3][2],
-		//	(float)-m[0][1], (float)-m[1][1], (float)-m[2][1], (float)-m[3][1]
-		//} };
+		for (size_t i = 0; i != 3; ++i)
+			for (size_t j = 0; j != 4; ++j)
+				r.value[i][j] = m[j][i];
+		return r;
+	}
 
-		FVector mat_scale = Transform.GetScale3D();
-
-		return
-		{ {
-			(float)(mat_scale.Z), 0, 0, (float)m[3][2],
-			0, (float)(mat_scale.Y), 0, (float)m[3][1],
-			0, 0, (float)(mat_scale.X), (float)-m[3][0],
-		} };
+	rgl_vec3f ToRGLVector(const FVector& Vector)
+	{
+		return ToRGLVector(FVector3f(Vector));
 	}
 
 	rgl_vec3f ToRGLVector(const FVector3f& Vector)
 	{
-		auto x = Vector.X;
-		auto y = Vector.Y;
-		auto z = Vector.Z;
-		return { { x, y, z} };
+		const auto x = Vector.X;
+		const auto y = Vector.Y;
+		const auto z = Vector.Z;
+		return { { x, y, z } };
 	}
 
 	rgl_vec3i ToRGLVector(const FIntVector3& Vector)
 	{
-		auto x = Vector.X;
-		auto y = Vector.Y;
-		auto z = Vector.Z;
-		return { { x, y, z} };
+		const auto x = Vector.X;
+		const auto y = Vector.Y;
+		const auto z = Vector.Z;
+		return { { x, y, z } };
 	}
 
 	FTransform ToUETransform(const rgl_mat3x4f& Transform)
@@ -110,19 +105,19 @@ namespace RGL
 		auto M = FMatrix::Identity;
 		for (size_t i = 0; i != 3; ++i)
 			for (size_t j = 0; j != 4; ++j)
-				M.M[i][j] = Transform.value[i][j];
+				M.M[j][i] = Transform.value[i][j];
 		return FTransform(M);
 	}
 
 	FVector3f ToUEVector(const rgl_vec3f& Vector)
 	{
-		auto [x, y, z] = Vector.value;
+		const auto [x, y, z] = Vector.value;
 		return FVector3f(x, y, z);
 	}
 
 	FIntVector3 ToUEVector(const rgl_vec3i& Vector)
 	{
-		auto [x, y, z] = Vector.value;
+		const auto [x, y, z] = Vector.value;
 		return FIntVector3(x, y, z);
 	}
 }
