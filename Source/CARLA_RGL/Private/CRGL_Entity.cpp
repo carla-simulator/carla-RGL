@@ -29,7 +29,7 @@ namespace RGL
 		return r;
 	}
 
-	void FEntity::SetPose(const rgl_mat3x4f& Transform)
+	void FEntity::SetPose(const Float3x4& Transform)
 	{
 		CheckRGLResult(rgl_entity_set_pose(
 			GetHandle(),

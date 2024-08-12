@@ -28,7 +28,7 @@ namespace RGL
 			const FScene& Scene,
 			const FMesh& Mesh);
 
-		void SetPose(const rgl_mat3x4f& Transform);
+		void SetPose(const Float3x4& Transform);
 		void SetPose(const FTransform& Transform);
 		void SetID(int32_t ID);
 		void SetIntensityTexture(const FTexture& FTexture);

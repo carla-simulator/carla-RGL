@@ -17,7 +17,12 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCarlaRGL, Log, Log);
 
 namespace RGL
 {
-	enum class EField : uint32
+	using Int3 = rgl_vec3i;
+	using Float2 = rgl_vec2f;
+	using Float3 = rgl_vec3f;
+	using Float3x4 = rgl_mat3x4f;
+
+	enum class EField : std::underlying_type_t<rgl_field_t>
 	{
 		XYZVec3F32 = RGL_FIELD_XYZ_VEC3_F32,
 		IntensityF32 = RGL_FIELD_INTENSITY_F32,
@@ -42,17 +47,17 @@ namespace RGL
 		IncidentAngleF32 = RGL_FIELD_INCIDENT_ANGLE_F32,
 		RayPoseMat3x4F32 = RGL_FIELD_RAY_POSE_MAT3x4_F32,
 		LaserRetroF32 = RGL_FIELD_LASER_RETRO_F32,
-		Padding8 = RGL_FIELD_PADDING_8 ,
+		Padding8 = RGL_FIELD_PADDING_8,
 		Padding16 = RGL_FIELD_PADDING_16,
 		Padding32 = RGL_FIELD_PADDING_32,
-		DynamicFormat = RGL_FIELD_DYNAMIC_FORMAT ,
+		DynamicFormat = RGL_FIELD_DYNAMIC_FORMAT,
 	};
 
 	void CheckRGLResult(int32_t status);
 
 
 
-	rgl_mat3x4f ToRGLTransform(
+	Float3x4 ToRGLTransform(
 		const FTransform& Transform);
 
 	rgl_vec3f ToRGLVector(
@@ -65,7 +70,7 @@ namespace RGL
 		const FIntVector3& Vector);
 
 	FTransform ToUETransform(
-		const rgl_mat3x4f& Transform);
+		const Float3x4& Transform);
 
 	FVector3f ToUEVector(
 		const rgl_vec3f& Vector);
@@ -112,16 +117,17 @@ namespace RGL
 		FHandleMixin(const FHandleMixin&) = delete;
 		FHandleMixin& operator=(const FHandleMixin&) = delete;
 
-		~FHandleMixin()
+		void Destroy()
 		{
 			if constexpr (Dtor != nullptr)
-			{
-				if (handle)
-				{
-					Dtor(handle);
-					handle = nullptr;
-				}
-			}
+				Dtor(handle);
+			handle = nullptr;
+		}
+
+		~FHandleMixin()
+		{
+			if (handle != nullptr)
+				Destroy();
 		}
 
 	protected:
@@ -271,7 +277,7 @@ namespace RGL
 	template <>
 	struct FCRGLFieldToTypeHelper<RGL_FIELD_RAY_POSE_MAT3x4_F32>
 	{
-		using Type = rgl_mat3x4f;
+		using Type = Float3x4;
 	};
 
 	template <>

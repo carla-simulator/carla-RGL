@@ -67,10 +67,10 @@ namespace RGL
 
 
 
-	rgl_mat3x4f ToRGLTransform(
+	Float3x4 ToRGLTransform(
 		const FTransform& Transform)
 	{
-		rgl_mat3x4f r = { };
+		Float3x4 r = { };
 		const auto mat = Transform.ToMatrixWithScale();
 		const auto& m = mat.M;
 		for (size_t i = 0; i != 3; ++i)
@@ -100,7 +100,7 @@ namespace RGL
 		return { { x, y, z } };
 	}
 
-	FTransform ToUETransform(const rgl_mat3x4f& Transform)
+	FTransform ToUETransform(const Float3x4& Transform)
 	{
 		auto M = FMatrix::Identity;
 		for (size_t i = 0; i != 3; ++i)

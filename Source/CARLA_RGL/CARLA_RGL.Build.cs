@@ -23,9 +23,17 @@ public class CARLA_RGL : ModuleRules
   {
     PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+    var DependenciesPath = Path.Combine(PluginDirectory, "Dependencies");
+
     if (!Directory.Exists(RGLPath))
-      RGLPath = Path.Combine(PluginDirectory, "Dependencies", "RobotecGPULidar");
-    
+    {
+      RGLPath = Path.Combine(DependenciesPath, "RobotecGPULidar");
+    }
+
+    var FlatHashMapPath = Path.Combine(DependenciesPath, "flat_hash_map");
+    if (Directory.Exists(FlatHashMapPath))
+      PublicIncludePaths.Add(FlatHashMapPath);
+
     if (!Directory.Exists(RGLPath))
     {
       if (Target.Platform == UnrealTargetPlatform.Win64)

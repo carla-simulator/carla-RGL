@@ -19,20 +19,20 @@ namespace RGL
 
 		static std::pair<int32_t, int32_t> GetResultSize(
 			FNode& node,
-			rgl_field_t field);
+			EField field);
 
 		static void GetResultData(
 			FNode& node,
-			rgl_field_t field,
+			EField field,
 			void* data);
 
 		template <
-			rgl_field_t Field,
+			EField Field,
 			template <typename> typename ArrayT = std::vector>
 		static auto GetResult(
 			FNode& node)
 		{
-			using T = FFieldToType<Field>;
+			using T = FFieldToType<(rgl_field_t)Field>;
 			ArrayT<T> r;
 			auto [size, size_of] = GetResultSize(node, Field);
 			check(size_of == sizeof(T));
@@ -42,12 +42,12 @@ namespace RGL
 		}
 
 		template <
-			rgl_field_t Field,
-			template <typename> typename ArrayT = TArray>
+			EField Field,
+			template <typename> typename ArrayT = TArray64>
 		static auto GetResultUE(
 			FNode& node)
 		{
-			using T = FFieldToType<Field>;
+			using T = FFieldToType<(rgl_field_t)Field>;
 			ArrayT<T> r;
 			auto [size, size_of] = GetResultSize(node, Field);
 			check(size_of == sizeof(T));

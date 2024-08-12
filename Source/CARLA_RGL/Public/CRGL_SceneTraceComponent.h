@@ -3,6 +3,7 @@
 #include "CRGL_Common.h"
 #include "CRGL_Entity.h"
 #include "CRGL_Mesh.h"
+#include "CRGL_LIDAR.h"
 #include "CRGL_Node.h"
 #include "CRGL_SceneTraceComponent.generated.h"
 
@@ -44,29 +45,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RayCast(FLIDARResult& OutResult);
 
-	UFUNCTION(BlueprintCallable)
-	void PrintRayCastResult(const FLIDARResult& InResult);
-	
-	UFUNCTION(BlueprintCallable)
-	void UpdatePoses();
-
-
 private:
 
-	void EnumerateSceneEntities();
-	void SetupTaskGraph();
-
-	struct
-	{
-		RGL::FNode RayPoses;
-		RGL::FNode LIDARTransform;
-		RGL::FNode RayRanges;
-		RGL::FNode RayTrace;
-		RGL::FNode PointsYield;
-	} Nodes;
-
-	std::vector<rgl_mat3x4f> Pattern;
-	TArray<RGL::FMesh> Meshes;
-	TArray<RGL::FEntity> Entities;
+	RGL::FLIDAR LIDAR;
 
 };

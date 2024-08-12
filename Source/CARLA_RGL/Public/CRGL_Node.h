@@ -17,7 +17,7 @@ namespace RGL
 
 
 		static FNode CreateRayTransforms(
-			const rgl_mat3x4f& transform);
+			const Float3x4& transform);
 
 
 
@@ -39,11 +39,11 @@ namespace RGL
 
 
 		static FNode CreateRaysFromMat3x4F(
-			const rgl_mat3x4f* transforms,
+			const Float3x4* transforms,
 			size_t count);
 
 		inline static FNode CreateRaysFromMat3x4F(
-			std::span<const rgl_mat3x4f> transforms)
+			std::span<const Float3x4> transforms)
 		{
 			return CreateRaysFromMat3x4F(transforms.data(), transforms.size());
 		}
@@ -75,16 +75,16 @@ namespace RGL
 
 
 		static FNode CreatePointsTransform(
-			const rgl_mat3x4f& transform);
+			const Float3x4& transform);
 
 
 
 		static FNode CreatePointsFormat(
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t count);
 
 		inline static FNode CreatePointsFormat(
-			std::span<const rgl_field_t> fields)
+			std::span<const RGL::EField> fields)
 		{
 			return CreatePointsFormat(fields.data(), fields.size());
 		}
@@ -92,11 +92,11 @@ namespace RGL
 
 
 		static FNode CreatePointsYield(
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t count);
 
 		inline static FNode CreatePointsYield(
-			std::span<const rgl_field_t> fields)
+			std::span<const RGL::EField> fields)
 		{
 			return CreatePointsYield(fields.data(), fields.size());
 		}
@@ -104,16 +104,16 @@ namespace RGL
 
 
 		static FNode CreatePointsCompactByField(
-			rgl_field_t field);
+			RGL::EField field);
 
 
 
 		static FNode CreatePointsSpatialMerge(
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t count);
 
 		inline static FNode CreatePointsSpatialMerge(
-			std::span<const rgl_field_t> fields)
+			std::span<const RGL::EField> fields)
 		{
 			return CreatePointsSpatialMerge(fields.data(), fields.size());
 		}
@@ -121,11 +121,11 @@ namespace RGL
 
 
 		static FNode CreatePointsTemporalMerge(
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t count);
 
 		inline static FNode CreatePointsTemporalMerge(
-			std::span<const rgl_field_t> fields)
+			std::span<const RGL::EField> fields)
 		{
 			return CreatePointsTemporalMerge(fields.data(), fields.size());
 		}
@@ -135,7 +135,7 @@ namespace RGL
 		static FNode CreatePointsFromArray(
 			const void* points,
 			size_t point_count,
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t field_count);
 
 		static FNode CreatePointsRadarPostProcess(
@@ -176,7 +176,7 @@ namespace RGL
 
 
 		void SetRayTransforms(
-			const rgl_mat3x4f& transform);
+			const Float3x4& transform);
 
 
 
@@ -198,11 +198,11 @@ namespace RGL
 
 
 		void SetRaysFromMat3x4F(
-			const rgl_mat3x4f* transforms,
+			const Float3x4* transforms,
 			size_t count);
 
 		void SetRaysFromMat3x4F(
-			std::span<const rgl_mat3x4f> transforms)
+			std::span<const Float3x4> transforms)
 		{
 			SetRaysFromMat3x4F(transforms.data(), transforms.size());
 		}
@@ -234,16 +234,16 @@ namespace RGL
 
 
 		void SetPointsTransform(
-			const rgl_mat3x4f& transform);
+			const Float3x4& transform);
 
 
 
 		void SetPointsFormat(
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t count);
 
 		void SetPointsFormat(
-			std::span<const rgl_field_t> fields)
+			std::span<const RGL::EField> fields)
 		{
 			SetPointsFormat(fields.data(), fields.size());
 		}
@@ -251,11 +251,11 @@ namespace RGL
 
 
 		void SetPointsYield(
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t count);
 
 		void SetPointsYield(
-			std::span<const rgl_field_t> fields)
+			std::span<const RGL::EField> fields)
 		{
 			SetPointsYield(fields.data(), fields.size());
 		}
@@ -263,16 +263,16 @@ namespace RGL
 
 
 		void SetPointsCompactByField(
-			rgl_field_t field);
+			RGL::EField field);
 
 
 
 		void SetPointsSpatialMerge(
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t count);
 
 		void SetPointsSpatialMerge(
-			std::span<const rgl_field_t> fields)
+			std::span<const RGL::EField> fields)
 		{
 			SetPointsSpatialMerge(fields.data(), fields.size());
 		}
@@ -280,11 +280,11 @@ namespace RGL
 
 
 		void SetPointsTemporalMerge(
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t count);
 
 		void SetPointsTemporalMerge(
-			std::span<const rgl_field_t> fields)
+			std::span<const RGL::EField> fields)
 		{
 			SetPointsTemporalMerge(fields.data(), fields.size());
 		}
@@ -294,7 +294,7 @@ namespace RGL
 		void SetPointsFromArray(
 			const void* points,
 			size_t point_count,
-			const rgl_field_t* fields,
+			const RGL::EField* fields,
 			size_t field_count);
 
 

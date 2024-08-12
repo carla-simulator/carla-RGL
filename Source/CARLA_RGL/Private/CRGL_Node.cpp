@@ -14,7 +14,7 @@ namespace RGL
 		return result;
 	}
 
-	FNode FNode::CreateRayTransforms(const rgl_mat3x4f& transform)
+	FNode FNode::CreateRayTransforms(const Float3x4& transform)
 	{
 		FNode r = { };
 		CheckRGLResult(rgl_node_rays_transform(r.GetHandlePtr(), &transform));
@@ -33,7 +33,7 @@ namespace RGL
 		return r;
 	}
 
-	FNode FNode::CreateRaysFromMat3x4F(const rgl_mat3x4f* transforms, size_t count)
+	FNode FNode::CreateRaysFromMat3x4F(const Float3x4* transforms, size_t count)
 	{
 		FNode r = { };
 		CheckRGLResult(rgl_node_rays_from_mat3x4f(r.GetHandlePtr(), transforms, count));
@@ -54,56 +54,56 @@ namespace RGL
 		return r;
 	}
 
-	FNode FNode::CreatePointsTransform(const rgl_mat3x4f& transform)
+	FNode FNode::CreatePointsTransform(const Float3x4& transform)
 	{
 		FNode r = { };
 		CheckRGLResult(rgl_node_points_transform(r.GetHandlePtr(), &transform));
 		return r;
 	}
 
-	FNode FNode::CreatePointsFormat(const rgl_field_t* fields, size_t count)
+	FNode FNode::CreatePointsFormat(const RGL::EField* fields, size_t count)
 	{
 		FNode r = { };
-		CheckRGLResult(rgl_node_points_format(r.GetHandlePtr(), fields, count));
+		CheckRGLResult(rgl_node_points_format(r.GetHandlePtr(), (const rgl_field_t*)fields, count));
 		return r;
 	}
 
-	FNode FNode::CreatePointsYield(const rgl_field_t* fields, size_t count)
+	FNode FNode::CreatePointsYield(const RGL::EField* fields, size_t count)
 	{
 		FNode r = { };
-		CheckRGLResult(rgl_node_points_yield(r.GetHandlePtr(), fields, count));
+		CheckRGLResult(rgl_node_points_yield(r.GetHandlePtr(), (const rgl_field_t*)fields, count));
 		return r;
 	}
 
-	FNode FNode::CreatePointsCompactByField(rgl_field_t field)
+	FNode FNode::CreatePointsCompactByField(RGL::EField field)
 	{
 		FNode r = { };
-		CheckRGLResult(rgl_node_points_compact_by_field(r.GetHandlePtr(), field));
+		CheckRGLResult(rgl_node_points_compact_by_field(r.GetHandlePtr(), (rgl_field_t)field));
 		return r;
 	}
 
-	FNode FNode::CreatePointsSpatialMerge(const rgl_field_t* fields, size_t count)
+	FNode FNode::CreatePointsSpatialMerge(const RGL::EField* fields, size_t count)
 	{
 		FNode r = { };
-		CheckRGLResult(rgl_node_points_spatial_merge(r.GetHandlePtr(), fields, count));
+		CheckRGLResult(rgl_node_points_spatial_merge(r.GetHandlePtr(), (const rgl_field_t*)fields, count));
 		return r;
 	}
 
-	FNode FNode::CreatePointsTemporalMerge(const rgl_field_t* fields, size_t count)
+	FNode FNode::CreatePointsTemporalMerge(const RGL::EField* fields, size_t count)
 	{
 		FNode r = { };
-		CheckRGLResult(rgl_node_points_temporal_merge(r.GetHandlePtr(), fields, count));
+		CheckRGLResult(rgl_node_points_temporal_merge(r.GetHandlePtr(), (const rgl_field_t*)fields, count));
 		return r;
 	}
 
 	FNode FNode::CreatePointsFromArray(
 		const void* points,
 		size_t point_count,
-		const rgl_field_t* fields,
+		const RGL::EField* fields,
 		size_t field_count)
 	{
 		FNode r = { };
-		CheckRGLResult(rgl_node_points_from_array(r.GetHandlePtr(), points, point_count, fields, field_count));
+		CheckRGLResult(rgl_node_points_from_array(r.GetHandlePtr(), points, point_count, (const rgl_field_t*)fields, field_count));
 		return r;
 	}
 
@@ -203,7 +203,7 @@ namespace RGL
 	}
 
 	void FNode::SetRayTransforms(
-		const rgl_mat3x4f& transform)
+		const Float3x4& transform)
 	{
 		CheckRGLResult(rgl_node_rays_transform(GetHandlePtr(), &transform));
 	}
@@ -222,7 +222,7 @@ namespace RGL
 	}
 
 	void FNode::SetRaysFromMat3x4F(
-		const rgl_mat3x4f* transforms,
+		const Float3x4* transforms,
 		size_t count)
 	{
 		CheckRGLResult(rgl_node_rays_from_mat3x4f(GetHandlePtr(), transforms, count));
@@ -243,52 +243,55 @@ namespace RGL
 	}
 
 	void FNode::SetPointsTransform(
-		const rgl_mat3x4f& transform)
+		const Float3x4& transform)
 	{
 		CheckRGLResult(rgl_node_points_transform(GetHandlePtr(), &transform));
 	}
 
 	void FNode::SetPointsFormat(
-		const rgl_field_t* fields,
+		const RGL::EField* fields,
 		size_t count)
 	{
-		CheckRGLResult(rgl_node_points_format(GetHandlePtr(), fields, count));
+		CheckRGLResult(rgl_node_points_format(GetHandlePtr(), (const rgl_field_t*)fields, count));
 	}
 
 	void FNode::SetPointsYield(
-		const rgl_field_t* fields,
+		const RGL::EField* fields,
 		size_t count)
 	{
-		CheckRGLResult(rgl_node_points_yield(GetHandlePtr(), fields, count));
+		CheckRGLResult(rgl_node_points_yield(GetHandlePtr(), (const rgl_field_t*)fields, count));
 	}
 
 	void FNode::SetPointsCompactByField(
-		rgl_field_t field)
+		RGL::EField field)
 	{
-		CheckRGLResult(rgl_node_points_compact_by_field(GetHandlePtr(), field));
+		CheckRGLResult(rgl_node_points_compact_by_field(GetHandlePtr(), (rgl_field_t)field));
 	}
 
 	void FNode::SetPointsSpatialMerge(
-		const rgl_field_t* fields,
+		const RGL::EField* fields,
 		size_t count)
 	{
-		CheckRGLResult(rgl_node_points_spatial_merge(GetHandlePtr(), fields, count));
+		CheckRGLResult(rgl_node_points_spatial_merge(GetHandlePtr(), (const rgl_field_t*)fields, count));
 	}
 
 	void FNode::SetPointsTemporalMerge(
-		const rgl_field_t* fields,
+		const RGL::EField* fields,
 		size_t count)
 	{
-		CheckRGLResult(rgl_node_points_temporal_merge(GetHandlePtr(), fields, count));
+		CheckRGLResult(rgl_node_points_temporal_merge(GetHandlePtr(), (const rgl_field_t*)fields, count));
 	}
 
 	void FNode::SetPointsFromArray(
 		const void* points,
 		size_t point_count,
-		const rgl_field_t* fields,
+		const RGL::EField* fields,
 		size_t field_count)
 	{
-		CheckRGLResult(rgl_node_points_from_array(GetHandlePtr(), points, point_count, fields, field_count));
+		CheckRGLResult(rgl_node_points_from_array(
+			GetHandlePtr(),
+			points, point_count,
+			(const rgl_field_t*)fields, field_count));
 	}
 
 	void FNode::SetPointsRadarPostProcess(

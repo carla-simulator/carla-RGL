@@ -17,12 +17,12 @@ namespace RGL
 
 	std::pair<int32_t, int32_t> FGraph::GetResultSize(
 		FNode& node,
-		rgl_field_t field)
+		EField field)
 	{
 		int32_t size, size_of;
 		CheckRGLResult(rgl_graph_get_result_size(
 			node.GetHandle(),
-			field,
+			(rgl_field_t)field,
 			&size,
 			&size_of));
 		return std::make_pair(size, size_of);
@@ -30,12 +30,12 @@ namespace RGL
 
 	void FGraph::GetResultData(
 		FNode& node,
-		rgl_field_t field,
+		EField field,
 		void* data)
 	{
 		CheckRGLResult(rgl_graph_get_result_data(
 			node.GetHandle(),
-			field,
+			(rgl_field_t)field,
 			data));
 	}
 
