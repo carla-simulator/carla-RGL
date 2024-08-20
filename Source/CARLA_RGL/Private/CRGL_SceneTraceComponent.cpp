@@ -8,6 +8,11 @@
 
 
 
+static TAutoConsoleVariable<int32> CRGLDrawDebug(
+	TEXT("crgl.Debug.DrawTraces"),
+	0,
+	TEXT("Whether to draw traces."));
+
 ARGLLIDAR::ARGLLIDAR(
 	const FObjectInitializer& Initializer) :
 	Super(Initializer),
@@ -35,6 +40,7 @@ void ARGLLIDAR::BeginPlay()
 void ARGLLIDAR::EndPlay(EEndPlayReason::Type Unused)
 {
 	Super::EndPlay(Unused);
+	LIDAR.Destroy();
 }
 
 void ARGLLIDAR::Tick(float dt)
@@ -50,6 +56,11 @@ FLIDARResult ARGLLIDAR::RayCast()
 	LIDAR.SetTransform(RGL::ToRGLTransform(Transform));
 	LIDAR.Trace();
 	auto R = LIDAR.GetResult();
+	if (CRGLDrawDebug.GetValueOnAnyThread()) [[unlikely]]
+	{
+		auto Pattern = RGL::FLIDARPatternLibrary::GetDefault();
+		R.DebugDraw(GWorld.GetReference(), RGL::ToUETransform(LIDAR.GetLastTransform()), Pattern);
+	}
 	Result.Hit = R.HitMask;
 	Result.HitDistances = R.HitDistances;
 	Result.HitPosition = R.HitPositions;

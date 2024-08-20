@@ -3,6 +3,7 @@
 #include "CRGL_Mesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
+#include "Animation/SkeletalMeshActor.h"
 
 
 
@@ -18,6 +19,59 @@ namespace RGL
 		SetTime(nanoseconds.count());
 	}
 
+	uint32_t FSceneContext::IDToIndex(uint32_t ID)
+	{
+		check(ID != 0);
+		return ID - 1;
+	}
+
+	FSceneContext::EntityIndex FSceneContext::GetEntityIndex(AActor* Actor) const
+	{
+		ActorToEntityLock.lock_shared();
+		auto i = ActorToEntity.find(Actor);
+		ActorToEntityLock.unlock_shared();
+		return IDToIndex(i->second);
+	}
+
+	FEntity& FSceneContext::GetEntity(AActor* Actor)
+	{
+		return Entities[GetEntityIndex(Actor)];
+	}
+
+	void FSceneContext::OnActorTransformChanged(AActor* Actor)
+	{
+		auto Index = GetEntityIndex(Actor);
+		if (false && IsInGameThread())
+		{
+			// Fast path, single-threaded:
+			auto& Entity = Entities[Index];
+			Entity.SetPose(Actor->GetTransform());
+			return;
+		}
+		else
+		{
+			// Slow path, multi-threaded:
+
+			// Check if the target actor has already been marked:
+			auto& InfoMask = ChangedCtrl[Index]->Mask;
+			if ((InfoMask.fetch_or(1U, std::memory_order::acquire) & UpdateInfo::UPDATED_BIT) != 0)
+				return;
+
+			// Add it to the queue:
+			auto Last = ChangedTail.exchange(Index, std::memory_order::acquire);
+			if (Last == NilIndex)
+			{
+				ChangedHead.store(Index, std::memory_order::release);
+				return;
+			}
+			else
+			{
+				ChangedCtrl[Last]->Next = Index;
+				std::atomic_thread_fence(std::memory_order::release);
+			}
+		}
+	}
+
 	FSceneContext& FSceneContext::GetDefaultScene()
 	{
 		static FSceneContext Scene;
@@ -25,24 +79,27 @@ namespace RGL
 	}
 
 	FSceneContext::FSceneContext() :
-		RegisteredActors(),
-		Meshes(),
+		UniqueMeshes(),
+		ActorToEntity(),
+		Actors(),
 		Entities(),
-		EntityMap(),
-		Changed(),
-		Changed2(),
-		ChangedLock(),
-		AnyChanged()
+		RefCount(),
+		ChangedCtrl(),
+		ChangedHead(NilIndex),
+		ChangedTail(NilIndex),
+		ActorToEntityLock()
 	{
-		Changed.reserve(4096 / sizeof(AActor*));
-		Changed2.reserve(Changed.capacity());
 	}
 
 	void FSceneContext::RegisterActor(AActor* Actor)
 	{
-		if (auto SM = Cast<AStaticMeshActor>(Actor))
+		if (auto Static = Cast<AStaticMeshActor>(Actor))
 		{
-			return RegisterStaticMeshActor(SM);
+			return RegisterStaticMeshActor(Static);
+		}
+		else if (auto Skeletal = Cast<ASkeletalMeshActor>(Actor))
+		{
+			return RegisterSkeletalMeshActor(Skeletal);
 		}
 		else
 		{
@@ -61,70 +118,102 @@ namespace RGL
 			RegisterStaticMeshActor(Cast<AStaticMeshActor>(Actor));
 	}
 
-	void FSceneContext::RegisterStaticMeshActor(AStaticMeshActor* SMA)
+	void FSceneContext::RegisterStaticMeshActor(AStaticMeshActor* Actor)
 	{
-		RegisteredActors.push_back(SMA);
-		Meshes.push_back(FMesh::FromStaticMeshActor(SMA));
-		Entities.push_back(FEntity::Create(*this, Meshes.back()));
+		auto SMC = Actor->GetStaticMeshComponent();
+		check(SMC);
+		auto SM = SMC->GetStaticMesh();
+		FString MeshID;
+		SM->GetMeshId(MeshID);
+		auto& UniqueMesh = UniqueMeshes[MeshID];
+		if (!UniqueMesh.IsValid())
+			UniqueMesh = FMesh::FromUEMesh(SM);
+		Actors.push_back(Actor);
+		Entities.push_back(FEntity::Create(*this, UniqueMesh));
+		ChangedCtrl.push_back(
+			std::unique_ptr<UpdateInfo>(
+				new UpdateInfo{ 0, NilIndex }));
 		auto& Entity = Entities.back();
 		auto ID = (int32_t)Entities.size();
-		Entity.SetPose(SMA->GetTransform());
+		Entity.SetPose(Actor->GetTransform());
 		Entity.SetID(ID);
-		EntityMap.insert({ SMA, ID });
-		auto Root = SMA->GetRootComponent();
+		{
+			std::scoped_lock guard(ActorToEntityLock);
+			ActorToEntity.insert({ Actor, ID });
+		}
+		auto Root = Actor->GetRootComponent();
 		Root->TransformUpdated.AddLambda([this](
 			USceneComponent* UpdatedComponent,
 			EUpdateTransformFlags UpdateTransformFlags,
 			ETeleportType Teleport)
 		{
 			auto Owner = UpdatedComponent->GetOwner();
-			std::scoped_lock Guard(ChangedLock);
-			Changed.push_back(Owner);
+			check(Owner);
+			OnActorTransformChanged(Owner);
 		});
+	}
+
+	void FSceneContext::RegisterSkeletalMeshActor(ASkeletalMeshActor* Actor)
+	{
+		unimplemented();
 	}
 
 	bool FSceneContext::HasPendingUpdate()
 	{
-		return AnyChanged.load(std::memory_order::acquire);
+		return ChangedTail.load(std::memory_order_acquire) != NilIndex;
 	}
 
 	void FSceneContext::Update()
 	{
-		std::scoped_lock Guard(ChangedLock);
-		std::swap(Changed, Changed2);
-		for (auto Actor : Changed)
+		auto Head = ChangedHead.load(std::memory_order_acquire);
+		auto Tail = ChangedTail.exchange(NilIndex, std::memory_order_acquire);
+		check(Head != NilIndex);
+		check(Tail != NilIndex);
+
+		for (;;)
 		{
-			auto i = EntityMap.find(Actor);
-			if (i == EntityMap.end())
+			auto Actor = Actors[Head];
+			auto& Ctrl = *ChangedCtrl[Head];
+
+			do
 			{
-				continue;
+				Ctrl.Mask.store(0, std::memory_order_release);
+				Entities[Head].SetPose(Actor->GetTransform());
+			} while (Ctrl.Mask.load(std::memory_order_acquire) != 0);
+
+			if (Head == Tail)
+				break;
+
+			for (;;)
+			{
+				Head = ChangedCtrl[Head]->Next;
+				if (Head != NilIndex)
+					break;
+				FGenericPlatformProcess::Yield();
+				std::atomic_thread_fence(std::memory_order_acquire);
 			}
-			auto ID = i->second;
-			check(ID < Entities.size());
-			auto& Entity = Entities[ID];
-			Entity.SetPose(Actor->GetTransform());
 		}
-		Changed.clear();
-		AnyChanged.store(false, std::memory_order::relaxed);
 	}
 
 	void FSceneContext::Minimize()
 	{
-		auto size = RegisteredActors.size();
-		for (size_t i = 0; i != size;)
+	}
+
+	void FSceneContext::OnSceneViewerCreated()
+	{
+		(void)RefCount.fetch_add(1, std::memory_order::release);
+	}
+
+	void FSceneContext::OnSceneViewerDestroyed()
+	{
+		if (RefCount.fetch_sub(1, std::memory_order::acquire) == 1)
 		{
-			auto Actor = RegisteredActors[i];
-			if (::IsValid(Actor)) [[likely]]
-			{
-				++i;
-				continue;
-			}
-			Entities[i].Destroy();
-			Entities.erase(Entities.begin() + i);
-			EntityMap.erase(Actor);
-			RegisteredActors[i] = RegisteredActors[size - 1];
-			--size;
+			UniqueMeshes.clear();
+			ActorToEntity.clear();
+			Actors.clear();
+			Entities.clear();
+			ChangedCtrl.clear();
 		}
-		RegisteredActors.resize(size);
+		RGL::CheckRGLResult(rgl_cleanup());
 	}
 }

@@ -14,13 +14,17 @@ namespace RGL
 	USTRUCT()
 	struct CARLA_RGL_API FLIDARPatternLibrary
 	{
-		static std::vector<Float3x4> GetDefault(
+		static std::vector<Float3x4> GridScan(
 			FIntPoint Shape = FIntPoint(16, 16),
 			FVector2f MaxAngle = FVector2f(30.0F, 30.0F),
 			FVector2f MinAngle = FVector2f(-30.0F, -30.0F));
 
-		static std::vector<Float3x4> GetVelodyneHDL64ES2(
-			float SpinRateHz = 20.0);
+		static std::vector<Float3x4> GetVelodyneHDL64ES2();
+
+		inline static auto GetDefault()
+		{
+			return GridScan();
+		}
 	};
 
 	struct FLIDARResult
@@ -63,6 +67,7 @@ namespace RGL
 			FSceneContext& Scene,
 			const FLIDAROptions& Options);
 
+		void Destroy();
 		void SetTransform(FTransform NewTransform);
 		void SetTransform(Float3x4 NewTransform);
 		void SetPattern(std::span<const Float3x4> Pattern);
@@ -78,6 +83,8 @@ namespace RGL
 
 		constexpr auto& GetSceneContext() { return *Scene; }
 		constexpr auto& GetSceneContext() const { return *Scene; }
+
+		constexpr Float3x4 GetLastTransform() const { return LastTransform; }
 
 	private:
 

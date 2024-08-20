@@ -14,11 +14,6 @@
 
 */
 
-static TAutoConsoleVariable<int32> CRGLDrawDebug(
-	TEXT("crgl.Debug.DrawTraces"),
-	0,
-	TEXT("Whether to draw traces."));
-
 namespace RGL
 {
 	void FLIDAR::CheckGraphEdges()
@@ -70,6 +65,7 @@ namespace RGL
 		PointsYieldHitPositions(false),
 		Scene(&Scene)
 	{
+		Scene.OnSceneViewerCreated();
 		SetPattern(Options.Pattern);
 		Nodes.RayTrace.SetRayTrace(Scene);
 		if (!Options.EnabledPointsYieldFields.empty())
@@ -98,6 +94,12 @@ namespace RGL
 
 	FLIDAR::~FLIDAR()
 	{
+	}
+
+	void FLIDAR::Destroy()
+	{
+		Scene->OnSceneViewerDestroyed();
+		Scene = nullptr;
 	}
 
 	void FLIDAR::SetTransform(FTransform NewTransform)
@@ -190,11 +192,9 @@ namespace RGL
 
 	void FLIDAR::Trace()
 	{
+		check(Scene != nullptr);
 		if (Scene->HasPendingUpdate())
-		{
 			Scene->Update();
-			// Scene->Minimize();
-		}
 		FGraph::Run(Nodes.Pattern);
 	}
 
@@ -207,30 +207,23 @@ namespace RGL
 			Result.HitDistances = FGraph::GetResultUE<EField::DistanceF32>(Nodes.PointsYield);
 			Result.HitPositions = FGraph::GetResultUE<EField::XYZVec3F32>(Nodes.PointsYield);
 		}
-
-		if (CRGLDrawDebug.GetValueOnAnyThread()) [[unlikely]]
-		{
-			auto Pattern = FLIDARPatternLibrary::GetDefault();
-			Result.DebugDraw(GWorld.GetReference(), ToUETransform(LastTransform), Pattern);
-		}
-
 		return Result;
 	}
 
 
 
-	std::vector<Float3x4> FLIDARPatternLibrary::GetDefault(
+	std::vector<Float3x4> FLIDARPatternLibrary::GridScan(
 		FIntPoint Shape,
 		FVector2f MaxAngle,
 		FVector2f MinAngle)
 	{
 		std::vector<Float3x4> r;
-		const auto MaxPitch = MaxAngle.X;
-		const auto MaxYaw = MaxAngle.Y;
-		const auto MinPitch = MinAngle.X;
-		const auto MinYaw = MinAngle.Y;
-		const auto PitchStep = (MaxPitch - MinPitch) / (float)Shape.Y;
-		const auto YawStep = (MaxYaw - MinYaw) / (float)Shape.X;
+		auto MaxPitch = MaxAngle.X;
+		auto MaxYaw = MaxAngle.Y;
+		auto MinPitch = MinAngle.X;
+		auto MinYaw = MinAngle.Y;
+		auto PitchStep = (MaxPitch - MinPitch) / (float)Shape.Y;
+		auto YawStep = (MaxYaw - MinYaw) / (float)Shape.X;
 		r.reserve(Shape.X * Shape.Y);
 		for (auto Pitch = MinPitch; Pitch <= MaxPitch; Pitch += PitchStep)
 		{
@@ -247,27 +240,30 @@ namespace RGL
 		return r;
 	}
 
-	std::vector<Float3x4> FLIDARPatternLibrary::GetVelodyneHDL64ES2(
-		float SpinRateHz)
+	std::vector<Float3x4> FLIDARPatternLibrary::GetVelodyneHDL64ES2()
 	{
-		std::vector<Float3x4> Pattern;
-		const auto DetectorCount = 64;
-		const auto AzimuthalFOV = PI * 2.0;
-		const auto ElevationMax = 0.034906585;
-		const auto ElevationMin = -0.432841654;
-		const auto ElevationStepSize = (ElevationMax - ElevationMin) / DetectorCount;
-		auto Elevation = ElevationMin;
-		for (size_t i = 0; i != DetectorCount; ++i)
+		std::vector<Float3x4> r;
+		auto DetectorCount = 64U;
+		auto HFOV = 360.0F;
+		auto MinPitch = -24.8F;
+		auto MaxPitch = 2.0F;
+		auto HAngularResolution = 0.08F;
+		auto HCount = (size_t)roundf(HFOV / HAngularResolution);
+		auto PitchStep = (MaxPitch - MinPitch) / DetectorCount;
+		r.reserve(DetectorCount * HCount);
+		for (auto Pitch = MinPitch; Pitch <= MaxPitch; Pitch += PitchStep)
 		{
-			auto R = FRotator(Elevation);
-			auto Q = R.Quaternion();
-			auto M = Q.ToMatrix();
-			auto T = FTransform(M);
-			auto m = ToRGLTransform(T);
-			Elevation += ElevationStepSize;
-			Pattern.push_back(m);
+			for (auto Yaw = 0.0F; Yaw <= 360.0F; Yaw += HAngularResolution)
+			{
+				auto M = FTransform(
+					FQuat::MakeFromEuler({ Pitch, Yaw, 0.0F }),
+					FVector::ZeroVector,
+					FVector::OneVector);
+				r.push_back(
+					RGL::ToRGLTransform(M));
+			}
 		}
-		return Pattern;
+		return r;
 	}
 
 
@@ -287,12 +283,8 @@ namespace RGL
 			if (HitMask[i])
 			{
 				auto End = FVector(HitPositions[i]);
+				// DrawDebugPoint(World, End, 1.0F, FColor::Red);
 				DrawDebugLine(World, Start, End, FColor::Red);
-			}
-			else
-			{
-				auto End = M.TransformPosition(FVector::ForwardVector * 10.0F);
-				DrawDebugLine(World, Start, End, FColor::Blue);
 			}
 		}
 	}
