@@ -1,9 +1,10 @@
 #include "CRGL_Mesh.h"
 #include "Engine/StaticMeshActor.h"
+#include "Rendering/SkeletalMeshRenderData.h"
+#include "Animation/SkeletalMeshActor.h"
 #include "StaticMeshAttributes.h"
 #include "StaticMeshResources.h"
 #include "StaticMeshLODResourcesAdapter.h"
-#include "RawMesh.h"
 #include <vector>
 
 
@@ -38,46 +39,6 @@ namespace RGL
 		{ 0, 1, 5 }
 	};
 
-	template <typename VA, typename IA>
-	static void DumpToOBJ(
-		std::string path,
-		VA&& vertices,
-		IA&& indices)
-	{
-		auto file = fopen(path.c_str(), "w");
-		for (auto& v : vertices)
-		{
-			auto [x, y, z] = v.value;
-			fprintf(file, "v %f %f %f\n", x, y, z);
-		}
-		for (auto& i : indices)
-		{
-			auto [x, y, z] = i.value;
-			fprintf(file, "f %i %i %i\n", x + 1, y + 1, z + 1);
-		}
-		fclose(file);
-	}
-
-	template <typename VA, typename IA>
-	static void DumpToOBJV2(
-		std::string path,
-		VA&& vertices,
-		IA&& indices)
-	{
-		auto file = fopen(path.c_str(), "w");
-		for (auto& v : vertices)
-		{
-			auto [x, y, z] = v.XYZ;
-			fprintf(file, "v %f %f %f\n", x, y, z);
-		}
-		for (auto& i : indices)
-		{
-			auto [x, y, z] = i.ABC;
-			fprintf(file, "f %i %i %i\n", x, y, z);
-		}
-		fclose(file);
-	}
-
 	FMesh FMesh::CreateCube()
 	{
 		return Create(CubeVertices, CubeIndices);
@@ -96,11 +57,11 @@ namespace RGL
 	}
 
 	FMesh FMesh::FromUEMesh(
-		UStaticMesh* FMesh,
-		uint32 LODIndex)
+		UStaticMesh* StaticMesh,
+		uint32_t LODIndex)
 	{
-		check(FMesh);
-		auto RenderData = FMesh->GetRenderData();
+		check(StaticMesh);
+		auto RenderData = StaticMesh->GetRenderData();
 
 		check(RenderData);
 		check(RenderData->LODResources.IsValidIndex(LODIndex));
@@ -121,13 +82,28 @@ namespace RGL
 		return FMesh::Create(Vertices, Indices);
 	}
 
-	FMesh FMesh::FromStaticMeshActor(AStaticMeshActor* mesh, uint32 lod_index)
+	FMesh FMesh::FromStaticMeshActor(
+		AStaticMeshActor* StaticMeshActor,
+		uint32_t LODIndex)
 	{
-		auto SMC = mesh->GetStaticMeshComponent();
+		auto SMC = StaticMeshActor->GetStaticMeshComponent();
 		check(SMC);
 		auto SM = SMC->GetStaticMesh();
 		check(SM);
-		return FromUEMesh(SM, lod_index);
+		return FromUEMesh(SM, LODIndex);
+	}
+
+	FMesh FMesh::FromSkeletalMeshActor(
+		ASkeletalMeshActor* SkeletalMeshActor,
+		uint32_t LODIndex)
+	{
+		auto SMC = SkeletalMeshActor->GetSkeletalMeshComponent();
+		check(SMC);
+		auto RenderData = SMC->GetSkeletalMeshRenderData();
+		check(RenderData);
+		auto& LOD = RenderData->LODRenderData[LODIndex];
+		auto VertexCount = LOD.GetNumVertices();
+		return FMesh();
 	}
 
 	FMesh FMesh::Create(

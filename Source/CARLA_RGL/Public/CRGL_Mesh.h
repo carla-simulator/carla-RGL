@@ -1,5 +1,4 @@
 #pragma once
-#include "CoreMinimal.h"
 #include "CRGL_Common.h"
 #include <span>
 
@@ -7,6 +6,7 @@
 
 class UStaticMesh;
 class AStaticMeshActor;
+class ASkeletalMeshActor;
 
 
 namespace RGL
@@ -28,24 +28,36 @@ namespace RGL
 
 		// Load mesh data from a UStaticMesh
 		static FMesh FromUEMesh(
-			UStaticMesh* mesh,
-			uint32 lod_index = 0);
+			UStaticMesh* StaticMesh,
+			uint32_t LODIndex = 0);
 
 		// Load mesh data from an AStaticMeshActor.
 		static FMesh FromStaticMeshActor(
-			AStaticMeshActor* mesh,
-			uint32 lod_index = 0);
+			AStaticMeshActor* StaticMeshActor,
+			uint32_t LODIndex = 0);
+
+		static FMesh FromSkeletalMeshActor(
+			ASkeletalMeshActor* SkeletalMeshActor,
+			uint32_t LODIndex = 0);
 
 		static FMesh Create(
 			std::span<const rgl_vec3f> vertices,
 			std::span<const rgl_vec3i> indices);
 
 		static FMesh Create(
-			const rgl_vec3f* vertices, int32_t vertex_count,
-			const rgl_vec3i* indices, int32_t index_count);
+			const rgl_vec3f* vertices,
+			int32_t vertex_count,
+			const rgl_vec3i* indices,
+			int32_t index_count);
 
-		void SetTextureUVs(const rgl_vec2f* uvs, int32_t count);
-		void UpdateVertices(const rgl_vec3f* vertices, int32_t count);
+		void SetTextureUVs(
+			const rgl_vec2f* uvs,
+			int32_t count);
+
+		void UpdateVertices(
+			const rgl_vec3f* vertices,
+			int32_t count);
+
 		bool IsAlive();
 
 	};

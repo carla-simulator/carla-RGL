@@ -1,5 +1,7 @@
 #pragma once
 #include "rgl/api/core.h"
+#include <cstdint>
+#include <cstddef>
 
 
 
